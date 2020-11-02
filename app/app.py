@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 from tensorflow.keras import Input, Model
@@ -9,6 +10,26 @@ def config_gpu():
     config = ConfigProto()
     config.gpu_options.allow_growth = True
     sess = InteractiveSession(config=config)
+
+def prepare_dataset():
+    df = pd.read_csv('app/dataset/icml_face_data_small.csv')
+    df.columns = ['label', 'usage', 'img']
+    df = df.drop(columns=['usage'])
+
+    emotions = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
+
+    df['emotion'] = df['label'].apply(lambda x: emotions[int(x)])
+    df['img'] = df['img'].apply(lambda x: np.array(x.split(' '), dtype=int).reshape(48, 48, 1))
+
+    return df
+
+def show_img(img):
+    plt.figure(figsize=(6, 6))
+
+    plt.imshow(img, cmap='gray')
+    plt.axis(False)
+
+    plt.show()
 
 def build_model():
     img_shape = (48, 48, 1)
@@ -28,7 +49,11 @@ def build_model():
     return model
 
 if __name__ == '__main__':
-    config_gpu()
+    # config_gpu()
 
-    model = build_model()
-    print(model.summary())
+    df = prepare_dataset()
+
+    print(df.head())
+
+    show_img(df['img'][5])
+    # model = build_model()
