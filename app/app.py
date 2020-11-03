@@ -16,7 +16,7 @@ def prepare_dataset():
     df.columns = ['label', 'usage', 'img']
     df = df.drop(columns=['usage'])
 
-    emotions = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
+    emotions = ['Raiva', 'Nojo', 'Medo', 'Feliz', 'Triste', 'Surpreso', 'Neutro']
 
     df['emotion'] = df['label'].apply(lambda x: emotions[int(x)])
     df['img'] = df['img'].apply(lambda x: np.array(x.split(' '), dtype=int).reshape(48, 48, 1))
