@@ -10,6 +10,7 @@ from tensorflow.keras import Input, Model
 from tensorflow.keras.layers import Conv2D, MaxPool2D, Flatten, Dense
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
+from tensorflow.keras.models import load_model
 from tensorflow.compat.v1 import ConfigProto, InteractiveSession
 
 def config_gpu():
@@ -132,20 +133,22 @@ def plot_analises(history, x_val, y_val, model):
 
 
 if __name__ == '__main__':
-    config_gpu()
+    # config_gpu()
 
-    x, y = prepare_dataset()
+    # x, y = prepare_dataset()
     # idx = 7
     # print(get_emotion(np.argmax(y[idx])))
     # show_img(x[idx])
-    x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.2, random_state=50)
+    # x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.2, random_state=50)
 
-    model = build_model()
+    # model = build_model()
     # print(model.summary())
 
-    epochs = 5
-    batch_size = 256
+    # epochs = 5
+    # batch_size = 256
+    # history = train_model(x_train, x_val, y_train, y_val, model, epochs=epochs, batch_size=batch_size)
 
-    history = train_model(x_train, x_val, y_train, y_val, model, epochs=epochs, batch_size=batch_size)
+    # plot_analises(history, x_val, y_val, model)
 
-    plot_analises(history, x_val, y_val, model)
+    # model = load_model('app/saves/model_default.h5')
+    # model.predict(x_val)
