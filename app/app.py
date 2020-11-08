@@ -3,6 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+import cv2
+
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 
@@ -30,10 +32,17 @@ def prepare_dataset():
 
     return x, y
 
-def show_img(img):
+def show_img(img, rgb=False, title=''):
+    if rgb:
+        img = img[:, :, ::-1]
+        cmap = None
+    else:
+        cmap = 'gray'
+
     plt.figure(figsize=(6, 6))
 
-    plt.imshow(img, cmap='gray')
+    plt.imshow(img, cmap=cmap)
+    plt.title(title)
     plt.axis(False)
 
     plt.show()
@@ -131,9 +140,46 @@ def plot_analises(history, x_val, y_val, model):
 
     plot_confusion_matrix(x_val, y_val, model)
 
+def detect_faces(img):
+    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    faces_detected = face_cascade.detectMultiScale(img, scaleFactor=1.1, minNeighbors=5)
+    
+    face_imgs = []
+
+    img_detected = img.copy()
+    img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+
+    for face in faces_detected:
+        (x, y, w, h) = face
+        cv2.rectangle(img_detected, (x, y), (x+w, y+h), (0, 255, 0), 1)
+        face_imgs.append(img_gray[y+1:y+h, x+1:x+w])
+
+    return img_detected, face_imgs
+
+def prepare_face(face):
+    network_input_img_size = (48, 48)
+
+    if face.shape[0] > network_input_img_size[0]:
+        face = cv2.resize(face, network_input_img_size, interpolation=cv2.INTER_AREA)
+    else:
+        face = cv2.resize(face, network_input_img_size, interpolation=cv2.INTER_CUBIC)
+
+    face = np.expand_dims(face, -1)
+
+    return face
+
+def prepare_img(img_path):
+    img = cv2.imread(img_path)
+    img_detected, face_imgs = detect_faces(img)
+
+    faces = []
+    for face in face_imgs:
+        faces.append(prepare_face(face))
+
+    return img, img_detected, np.array(faces)
 
 if __name__ == '__main__':
-    # config_gpu()
+    config_gpu()
 
     # x, y = prepare_dataset()
     # idx = 7
@@ -150,5 +196,17 @@ if __name__ == '__main__':
 
     # plot_analises(history, x_val, y_val, model)
 
-    # model = load_model('app/saves/model_default.h5')
+    model = load_model('app/saves/model_default.h5')
     # model.predict(x_val)
+
+    img_path = 'app/dataset/imgs/multi.jpg'
+    img, img_detected, faces = prepare_img(img_path)
+    
+    predicts = model.predict(faces)
+
+    # show_img(img, rgb=True)
+    # show_img(img_detected, rgb=True)
+
+    for face, predict in zip(faces, predicts):
+        emocao = get_emotion(np.argmax(predict))
+        show_img(face, title=emocao)
