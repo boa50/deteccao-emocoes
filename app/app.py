@@ -142,19 +142,16 @@ def plot_analises(history, x_val, y_val, model):
 
 def detect_faces(img):
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-    faces_detected = face_cascade.detectMultiScale(img, scaleFactor=1.1, minNeighbors=5)
+    faces_coords = face_cascade.detectMultiScale(img, minNeighbors=8)
     
     face_imgs = []
-
-    img_detected = img.copy()
     img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
-    for face in faces_detected:
+    for face in faces_coords:
         (x, y, w, h) = face
-        cv2.rectangle(img_detected, (x, y), (x+w, y+h), (0, 255, 0), 1)
         face_imgs.append(img_gray[y+1:y+h, x+1:x+w])
 
-    return img_detected, face_imgs
+    return faces_coords, face_imgs
 
 def prepare_face(face):
     network_input_img_size = (48, 48)
@@ -170,13 +167,34 @@ def prepare_face(face):
 
 def prepare_img(img_path):
     img = cv2.imread(img_path)
-    img_detected, face_imgs = detect_faces(img)
+    faces_coords, face_imgs = detect_faces(img)
 
     faces = []
     for face in face_imgs:
         faces.append(prepare_face(face))
 
-    return img, img_detected, np.array(faces)
+    return img, faces_coords, np.array(faces)
+
+def show_emotions(img, faces_coords, predicts):
+    img_detected = img.copy()
+
+    font_scale = max(img.shape[1] // 600, 1)
+
+    for coords, predict in zip(faces_coords, predicts):
+        emocao = get_emotion(np.argmax(predict))
+
+        (x, y, w, h) = coords
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        x_pos = x - 1*font_scale
+        y_pos = y - 3*font_scale
+        font_size = 0.5*font_scale
+        font_thick = int(1*np.ceil(font_scale / 2))
+
+        cv2.rectangle(img_detected, (x, y), (x+w, y+h), (0, 255, 0), font_thick)
+        cv2.putText(img_detected, emocao, (x_pos, y_pos), font, font_size, (0, 255, 0), font_thick, cv2.LINE_AA)
+
+    show_img(img_detected, rgb=True)
+
 
 if __name__ == '__main__':
     config_gpu()
@@ -199,14 +217,8 @@ if __name__ == '__main__':
     model = load_model('app/saves/model_default.h5')
     # model.predict(x_val)
 
-    img_path = 'app/dataset/imgs/multi.jpg'
-    img, img_detected, faces = prepare_img(img_path)
-    
+    img_path = 'app/dataset/imgs/01.jpeg'
+    img, faces_coords, faces = prepare_img(img_path)
+
     predicts = model.predict(faces)
-
-    # show_img(img, rgb=True)
-    # show_img(img_detected, rgb=True)
-
-    for face, predict in zip(faces, predicts):
-        emocao = get_emotion(np.argmax(predict))
-        show_img(face, title=emocao)
+    show_emotions(img, faces_coords, predicts)
