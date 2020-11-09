@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 
 from tensorflow.keras import Input, Model
-from tensorflow.keras.layers import Conv2D, MaxPool2D, Flatten, Dense
+from tensorflow.keras.layers import Conv2D, MaxPool2D, Flatten, Dense, Dropout
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 from tensorflow.keras.models import load_model
@@ -21,7 +21,7 @@ def config_gpu():
     sess = InteractiveSession(config=config)
 
 def prepare_dataset():
-    df = pd.read_csv('app/dataset/icml_face_data_small.csv')
+    df = pd.read_csv('app/dataset/icml_face_data.csv')
     df.columns = ['label', 'usage', 'img']
     df = df.drop(columns=['usage'])
 
@@ -60,13 +60,28 @@ def build_model():
     img_shape = (48, 48, 1)
 
     img_input = Input(shape=img_shape)
-    x = Conv2D(32, 3, padding='same', activation='relu')(img_input)
+    x = Conv2D(64, 3, padding='same', activation='relu')(img_input)
+    x = Dropout(0.2)(x)
+    x = Conv2D(64, 3, padding='same', activation='relu')(x)
+    x = Dropout(0.2)(x)
     x = MaxPool2D()(x)
-    x = Conv2D(32, 3, padding='same', activation='relu')(x)
+    x = Conv2D(128, 3, padding='same', activation='relu')(x)
+    x = Dropout(0.2)(x)
+    x = Conv2D(128, 3, padding='same', activation='relu')(x)
+    x = Dropout(0.2)(x)
     x = MaxPool2D()(x)
-    x = Conv2D(32, 3, padding='same', activation='relu')(x)
+    x = Conv2D(256, 3, padding='same', activation='relu')(x)
+    x = Dropout(0.2)(x)
+    x = Conv2D(256, 3, padding='same', activation='relu')(x)
+    # x = Dropout(0.2)(x)
+    # x = MaxPool2D()(x)
+    # x = Conv2D(512, 3, padding='same', activation='relu')(x)
+    # x = Dropout(0.2)(x)
+    # x = Conv2D(512, 3, padding='same', activation='relu')(x)
+    # x = Dropout(0.2)(x)
     x = Flatten()(x)
-    x = Dense(256)(x)
+    x = Dense(1024)(x)
+    x = Dense(1024)(x)
     out = Dense(7, activation='softmax')(x)
 
     model = Model(img_input, out) 
@@ -83,13 +98,13 @@ def train_model(x_train, x_val, y_train, y_val, model, epochs=10, batch_size=128
     model_save = ModelCheckpoint(
         filepath=model_filepath, 
         save_best_only=True,
-        monitor='val_loss',
-        mode='min',
-        verbose=0)
+        monitor='val_accuracy',
+        mode='max',
+        verbose=1)
 
     es = EarlyStopping(
-        monitor='val_loss',
-        mode='min',
+        monitor='val_accuracy',
+        mode='max',
         patience=es_patience,
         verbose=1)
 
@@ -208,17 +223,18 @@ if __name__ == '__main__':
     # model = build_model()
     # print(model.summary())
 
-    # epochs = 5
-    # batch_size = 256
+    # epochs = 50
+    # batch_size = 128
     # history = train_model(x_train, x_val, y_train, y_val, model, epochs=epochs, batch_size=batch_size)
 
     # plot_analises(history, x_val, y_val, model)
 
-    model = load_model('app/saves/model_default.h5')
+    # model = load_model('app/saves/model_default_58526.h5')
+    # print(model.summary())
     # model.predict(x_val)
 
-    img_path = 'app/dataset/imgs/01.jpeg'
-    img, faces_coords, faces = prepare_img(img_path)
+    # img_path = 'app/dataset/imgs/01.jpeg'
+    # img, faces_coords, faces = prepare_img(img_path)
 
-    predicts = model.predict(faces)
-    show_emotions(img, faces_coords, predicts)
+    # predicts = model.predict(faces)
+    # show_emotions(img, faces_coords, predicts)
