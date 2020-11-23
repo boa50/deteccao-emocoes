@@ -194,19 +194,22 @@ def show_emotions(img, faces_coords, predicts):
     img_detected = img.copy()
 
     font_scale = max(img.shape[1] // 600, 1)
+    square_color = (50, 205, 50)
+    text_color = (255, 255, 255)
 
     for coords, predict in zip(faces_coords, predicts):
         emocao = get_emotion(np.argmax(predict))
 
         (x, y, w, h) = coords
         font = cv2.FONT_HERSHEY_SIMPLEX
-        x_pos = x - 1*font_scale
+        x_pos = x + 1*font_scale
         y_pos = y - 3*font_scale
         font_size = 0.5*font_scale
         font_thick = int(1*np.ceil(font_scale / 2))
 
-        cv2.rectangle(img_detected, (x, y), (x+w, y+h), (0, 255, 0), font_thick)
-        cv2.putText(img_detected, emocao, (x_pos, y_pos), font, font_size, (0, 255, 0), font_thick, cv2.LINE_AA)
+        cv2.rectangle(img_detected, (x, y), (x+w, y+h), square_color, font_thick)
+        cv2.rectangle(img_detected, (x, y - (16*font_scale)), (x+w, y), square_color, -1)
+        cv2.putText(img_detected, emocao, (x_pos, y_pos), font, font_size, text_color, font_thick, cv2.LINE_AA)
 
     show_img(img_detected, rgb=True)
 
@@ -229,12 +232,12 @@ if __name__ == '__main__':
 
     # plot_analises(history, x_val, y_val, model)
 
-    # model = load_model('app/saves/model_default_58526.h5')
+    model = load_model('app/saves/model_default_58526.h5')
     # print(model.summary())
     # model.predict(x_val)
 
-    # img_path = 'app/dataset/imgs/01.jpeg'
-    # img, faces_coords, faces = prepare_img(img_path)
+    img_path = 'app/dataset/imgs/multi.jpg'
+    img, faces_coords, faces = prepare_img(img_path)
 
-    # predicts = model.predict(faces)
-    # show_emotions(img, faces_coords, predicts)
+    predicts = model.predict(faces)
+    show_emotions(img, faces_coords, predicts)
