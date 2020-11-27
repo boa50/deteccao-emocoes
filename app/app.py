@@ -15,6 +15,8 @@ from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 from tensorflow.keras.models import load_model
 from tensorflow.compat.v1 import ConfigProto, InteractiveSession
 
+from mtcnn.mtcnn import MTCNN
+
 def config_gpu():
     config = ConfigProto()
     config.gpu_options.allow_growth = True
@@ -155,7 +157,7 @@ def plot_analises(history, x_val, y_val, model):
 
     plot_confusion_matrix(x_val, y_val, model)
 
-def detect_faces(img):
+def detect_faces_opencv(img):
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     faces_coords = face_cascade.detectMultiScale(img, minNeighbors=8)
     
@@ -164,6 +166,22 @@ def detect_faces(img):
 
     for face in faces_coords:
         (x, y, w, h) = face
+        face_imgs.append(img_gray[y+1:y+h, x+1:x+w])
+
+    return faces_coords, face_imgs
+
+def detect_faces_mtcnn(img):
+    faces_coords = []
+    face_imgs = []
+
+    detector = MTCNN()
+    faces = detector.detect_faces(img)
+
+    img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+
+    for face in faces:
+        x, y, w, h = face['box']
+        faces_coords.append((x, y, w, h))
         face_imgs.append(img_gray[y+1:y+h, x+1:x+w])
 
     return faces_coords, face_imgs
@@ -180,9 +198,16 @@ def prepare_face(face):
 
     return face
 
-def prepare_img(img_path):
+def prepare_img(img_path, detection='opencv'):
     img = cv2.imread(img_path)
-    faces_coords, face_imgs = detect_faces(img)
+
+    if detection == 'opencv':
+        faces_coords, face_imgs = detect_faces_opencv(img)
+    elif detection == 'mtcnn':
+        faces_coords, face_imgs = detect_faces_mtcnn(img)
+    else:
+        print('Método de detecção de faces não disponível')
+        return None, None, None
 
     faces = []
     for face in face_imgs:
@@ -236,8 +261,9 @@ if __name__ == '__main__':
     # print(model.summary())
     # model.predict(x_val)
 
-    img_path = 'app/dataset/imgs/multi.jpg'
-    img, faces_coords, faces = prepare_img(img_path)
+    img_path = 'app/dataset/imgs/multi1.jpg'
+    # img, faces_coords, faces = prepare_img(img_path, detection='opencv')
+    img, faces_coords, faces = prepare_img(img_path, detection='mtcnn')
 
     predicts = model.predict(faces)
     show_emotions(img, faces_coords, predicts)
