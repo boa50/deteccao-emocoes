@@ -11,3 +11,6 @@ Realização de detecção de emoções utilizando a base de dados contida em ht
 - https://machinelearningmastery.com/how-to-perform-face-detection-with-classical-and-deep-learning-methods-in-python-with-keras/
 - https://github.com/EmilWine/FaceKit
 - https://arxiv.org/pdf/1804.06039.pdf
+- https://www.pyimagesearch.com/2017/01/02/rotate-images-correctly-with-opencv-and-python/
+- https://stackoverflow.com/questions/48301186/cropping-concave-polygon-from-image-using-opencv-python
+- https://stackoverflow.com/questions/13538748/crop-black-edges-with-opencv
