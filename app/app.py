@@ -238,6 +238,25 @@ def show_emotions(img, faces_coords, predicts):
 
     show_img(img_detected, rgb=True)
 
+### Implementação baseada na do github do FaceKit
+def DrawFace(win, img):
+    square_color = (50, 205, 50)
+
+    x1 = win.x
+    y1 = win.y
+    x2 = win.width + win.x - 1
+    y2 = win.width + win.y - 1
+    centerX = (x1 + x2) / 2
+    centerY = (y1 + y2) / 2
+    angle = win.angle
+    R = cv2.getRotationMatrix2D((centerX,centerY),angle,1)
+    pts = np.array([[x1,y1,1],[x1,y2,1],[x2,y2,1],[x2,y1,1]], np.int32)
+    pts = (pts @ R.T).astype(int) #Rotate points
+    pts = pts.reshape((-1,1,2))
+    cv2.polylines(img,[pts],True,square_color, thickness=5)
+
+    # cv2.putText(img,"{0}:{1}".format(face_id,win.id),(x1,y1), cv2.FONT_HERSHEY_SIMPLEX, 0.5,(255,255,255),1,cv2.LINE_AA)
+
 
 if __name__ == '__main__':
     config_gpu()
@@ -257,13 +276,39 @@ if __name__ == '__main__':
 
     # plot_analises(history, x_val, y_val, model)
 
-    model = load_model('app/saves/model_default_58526.h5')
+    # model = load_model('app/saves/model_default_58526.h5')
     # print(model.summary())
     # model.predict(x_val)
 
-    img_path = 'app/dataset/imgs/multi1.jpg'
+    img_path = 'app/dataset/imgs/01.jpg'
     # img, faces_coords, faces = prepare_img(img_path, detection='opencv')
-    img, faces_coords, faces = prepare_img(img_path, detection='mtcnn')
+    # img, faces_coords, faces = prepare_img(img_path, detection='mtcnn')
 
-    predicts = model.predict(faces)
-    show_emotions(img, faces_coords, predicts)
+    # predicts = model.predict(faces)
+    # show_emotions(img, faces_coords, predicts)
+
+    from PyPCN import PCN
+
+    img = cv2.imread(img_path)
+
+    root_path = "repositorio_externo/FaceKit/PCN/"
+    detection_model_path = root_path + "model/PCN.caffemodel"
+    pcn1_proto = root_path + "model/PCN-1.prototxt"
+    pcn2_proto = root_path + "model/PCN-2.prototxt"
+    pcn3_proto = root_path + "model/PCN-3.prototxt"
+    tracking_model_path = root_path + "model/PCN-Tracking.caffemodel"
+    tracking_proto = root_path + "model/PCN-Tracking.prototxt"
+    embed_model_path = root_path + "model/resnetInception-128.caffemodel"
+    embed_proto = root_path + "model/resnetInception-128.prototxt"
+
+    detector = PCN(detection_model_path, pcn1_proto, pcn2_proto, pcn3_proto,
+			tracking_model_path, tracking_proto, embed_model_path, embed_proto,
+			15,1.45,0.5,0.5,0.98,30,0.9,0)
+
+    windows = detector.DetectAndTrack(img)
+
+    for win in windows:
+        DrawFace(win, img)
+        # PCN.DrawPoints(win,img)
+    
+    show_img(img, rgb=True)
