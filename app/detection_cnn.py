@@ -7,6 +7,7 @@ from sklearn.metrics import confusion_matrix, classification_report
 from tensorflow.keras import Input, Model
 from tensorflow.keras.layers import Conv2D, MaxPool2D, Flatten, Dense, Dropout
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
+from tensorflow.keras.applications import VGG19
 
 import utils
 
@@ -27,12 +28,6 @@ def build_model():
     x = Conv2D(256, 3, padding='same', activation='relu')(x)
     x = Dropout(0.2)(x)
     x = Conv2D(256, 3, padding='same', activation='relu')(x)
-    # x = Dropout(0.2)(x)
-    # x = MaxPool2D()(x)
-    # x = Conv2D(512, 3, padding='same', activation='relu')(x)
-    # x = Dropout(0.2)(x)
-    # x = Conv2D(512, 3, padding='same', activation='relu')(x)
-    # x = Dropout(0.2)(x)
     x = Flatten()(x)
     x = Dense(1024)(x)
     x = Dense(1024)(x)

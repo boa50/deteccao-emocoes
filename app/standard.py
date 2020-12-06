@@ -33,18 +33,6 @@ def detect_faces_mtcnn(img):
 
     return faces_coords, face_imgs
 
-# def prepare_face(face):
-#     network_input_img_size = (48, 48)
-
-#     if face.shape[0] > network_input_img_size[0]:
-#         face = cv2.resize(face, network_input_img_size, interpolation=cv2.INTER_AREA)
-#     else:
-#         face = cv2.resize(face, network_input_img_size, interpolation=cv2.INTER_CUBIC)
-
-#     face = np.expand_dims(face, -1)
-
-#     return face
-
 def prepare_img(img_path, detection='opencv'):
     img = cv2.imread(img_path)
 

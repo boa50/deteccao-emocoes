@@ -69,9 +69,10 @@ def DrawFace(win, img, predict=None):
         emocao = ''
     else:
         emocao = utils.get_emotion(np.argmax(predict))
-        
+
     square_color = (50, 205, 50)
 
     pts, _, x1, y1 = find_points(win)
-    cv2.polylines(img,[pts],True,square_color, thickness=5)
-    cv2.putText(img, emocao, (x1,y1), cv2.FONT_HERSHEY_SIMPLEX, 5, (255,255,255), 10, cv2.LINE_AA)
+    cv2.polylines(img, [pts], True, square_color, thickness=5)
+    cv2.putText(img, emocao, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 5, (0,0,0), 15, cv2.LINE_AA)
+    cv2.putText(img, emocao, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 5, (255,255,255), 10, cv2.LINE_AA)
