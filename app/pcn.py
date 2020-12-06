@@ -59,13 +59,19 @@ def prepare_img(img, win):
     x,y,w,h = cv2.boundingRect(cnt)
 
     croped = gray[y+1:y+h-1,x+1:x+w-1]
+    croped = utils.prepare_face(croped)
 
     return croped
 
 ### Implementação baseada na do github do FaceKit
-def DrawFace(win, img, predicao=''):
+def DrawFace(win, img, predict=None):
+    if predict is None:
+        emocao = ''
+    else:
+        emocao = utils.get_emotion(np.argmax(predict))
+        
     square_color = (50, 205, 50)
 
     pts, _, x1, y1 = find_points(win)
     cv2.polylines(img,[pts],True,square_color, thickness=5)
-    cv2.putText(img, "teste de texto", (x1,y1), cv2.FONT_HERSHEY_SIMPLEX, 5, (255,255,255), 10, cv2.LINE_AA)
+    cv2.putText(img, emocao, (x1,y1), cv2.FONT_HERSHEY_SIMPLEX, 5, (255,255,255), 10, cv2.LINE_AA)

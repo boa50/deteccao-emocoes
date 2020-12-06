@@ -29,7 +29,7 @@ if __name__ == '__main__':
     # detection.plot_analises([], x_val, y_val, model)
     # print(model.summary())
 
-    # img_path = 'app/dataset/imgs/07.jpg'
+    img_path = 'app/dataset/imgs/07.jpg'
     # img, faces_coords, faces = std.prepare_img(img_path, detection='opencv')
     # img, faces_coords, faces = std.prepare_img(img_path, detection='mtcnn')
 
@@ -44,9 +44,7 @@ if __name__ == '__main__':
 
     for win in windows:
         croped = pcn.prepare_img(img, win)
-        show_img(croped, rgb=False)
-        
-        pcn.DrawFace(win, img)
-        # show_img(img, rgb=True)
+        predict = model.predict(np.array([croped]))
+        pcn.DrawFace(win, img, predict=predict)
     
-    show_img(img, rgb=True)
+    utils.show_img(img, rgb=True)

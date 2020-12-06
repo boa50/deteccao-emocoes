@@ -47,6 +47,18 @@ def get_emotion(label):
 
     return emotion
 
+def prepare_face(face):
+    network_input_img_size = (48, 48)
+
+    if face.shape[0] > network_input_img_size[0]:
+        face = cv2.resize(face, network_input_img_size, interpolation=cv2.INTER_AREA)
+    else:
+        face = cv2.resize(face, network_input_img_size, interpolation=cv2.INTER_CUBIC)
+
+    face = np.expand_dims(face, -1)
+
+    return face
+
 ### Implementação baseada na contida no artigo https://www.pyimagesearch.com/2017/01/02/rotate-images-correctly-with-opencv-and-python/
 def rotate_bound(image, angle):
     # grab the dimensions of the image and then determine the
