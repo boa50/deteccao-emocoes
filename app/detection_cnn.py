@@ -7,7 +7,6 @@ from sklearn.metrics import confusion_matrix, classification_report
 from tensorflow.keras import Input, Model
 from tensorflow.keras.layers import Conv2D, MaxPool2D, Flatten, Dense, Dropout
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
-from tensorflow.keras.applications import VGG19
 
 import utils
 
