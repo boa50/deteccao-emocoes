@@ -25,11 +25,11 @@ if __name__ == '__main__':
 
 
     ### Utilização de abordagens padrão
-    # model = load_model('app/saves/model_default_58526.h5')
+    model = load_model('app/saves/model_default_58526.h5')
     # detection.plot_analises([], x_val, y_val, model)
     # print(model.summary())
 
-    # img_path = 'app/dataset/imgs/multi_rotated.jpg'
+    img_path = 'app/dataset/imgs/01.jpg'
     # img, faces_coords, faces = std.prepare_img(img_path, detection='opencv')
     # img, faces_coords, faces = std.prepare_img(img_path, detection='mtcnn')
 
@@ -38,13 +38,13 @@ if __name__ == '__main__':
     
 
     ### Utilização da PCN
-    # img = cv2.imread(img_path)
-    # detector = pcn.get_detector()
-    # windows = detector.DetectAndTrack(img)
+    img = cv2.imread(img_path)
+    detector = pcn.get_detector()
+    windows = detector.DetectAndTrack(img)
 
-    # for win in windows:
-    #     croped = pcn.prepare_img(img, win)
-    #     predict = model.predict(np.array([croped]))
-    #     pcn.DrawFace(win, img, predict=predict)
+    for win in windows:
+        croped = pcn.prepare_img(img, win)
+        predict = model.predict(np.array([croped]))
+        pcn.DrawFace(win, img, predict=predict)
     
-    # utils.show_img(img, rgb=True)
+    utils.show_img(img, rgb=True)
